@@ -16,6 +16,7 @@ const io = new Server(server, {
 
 // Express middlewares to enable sustained sessions, access to request bodies,
 // and logging that is dependant on operating environment.
+app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
@@ -26,7 +27,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
 
 // Connects passport authenitication middleware.
 const passport = require("./auth");
