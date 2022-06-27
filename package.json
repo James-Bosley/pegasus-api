@@ -4,7 +4,10 @@
   "description": "Server for Pegasus application.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db-init": "cd db && knex migrate:latest && knex seed:run",
+    "db-seed": "cd db && knex seed:run",
+    "dev": "nodemon server.js"
   },
   "author": "James Bosley",
   "license": "ISC",
@@ -19,6 +22,7 @@
     "knex": "^2.1.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
+    "ntl": "^5.1.0",
     "passport": "^0.6.0",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0",
