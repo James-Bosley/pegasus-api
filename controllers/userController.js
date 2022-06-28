@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 // Variables likely to change during production.
 const SALT_ROUNDS = process.env.SALT_RNDS || 8;
+const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 
 const addUser = async (req, res) => {
   try {
@@ -55,13 +56,26 @@ const addUser = async (req, res) => {
   }
 };
 
-const logInUser = (req, res) => {
+const logInLocal = (req, res) => {
+  try {
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+
+    // Token is returned in response.
+    return res.status(200).json({ error: false, message: "", data: { token } });
+    //
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ error: true, message: "Server error. Please try again" });
+  }
+};
+
+const logInOAuth = (req, res) => {
   try {
     const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
 
     // Redirection is aimed at main application feature - the games page. The token is appended as a
     // query string for storage and use on the client side.
-    return res.status(201).json({ error: false, message: "", data: { token } });
+    return res.redirect(`${SITE_URL}/games?token=${token}`);
     //
   } catch (err) {
     console.error(err.message);
@@ -126,7 +140,8 @@ const editUser = async (req, res) => {
 
 module.exports = {
   addUser,
-  logInUser,
+  logInLocal,
+  logInOAuth,
   logOutUser,
   getProfile,
   editUser,

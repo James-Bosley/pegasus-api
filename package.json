@@ -22,7 +22,6 @@
     "knex": "^2.1.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
-    "ntl": "^5.1.0",
     "passport": "^0.6.0",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0",
