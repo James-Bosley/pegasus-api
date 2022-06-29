@@ -1,5 +1,30 @@
+const Session = require("../models/sessionModel")();
+
 const router = (io, socket) => {
-  // TO DO - CORE APP USES SOCKETS TO COMMUNICATE WITH ACTIVE CLIENTS
+  // Logic for directing incoming connections to specific session instances will be
+  // placed here.
+
+  socket.emit("updated-session", Session.getState());
+
+  socket.on("join-session", playerId => {
+    Session.addPlayer(playerId);
+    io.emit("updated-session", Session.getState());
+  });
+
+  socket.on("game-create", (players, selectingPlr) => {
+    Session.createGame(players, selectingPlr);
+    io.emit("updated-session", Session.getState());
+  });
+
+  socket.on("game-update", async (gameId, update) => {
+    await Session.updateGame(gameId, update);
+    io.emit("updated-session", Session.getState());
+  });
+
+  socket.on("leave-session", playerId => {
+    Session.removePlayer(playerId);
+    io.emit("updated-session", Session.getState());
+  });
 };
 
 module.exports = router;

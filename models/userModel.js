@@ -19,14 +19,6 @@ const Visits = bookshelf.model("Visits", {
   },
 });
 
-// Establishes a Games model connected to the underlying table and sets relations to other tables.
-const Games = bookshelf.model("Games", {
-  tableName: "games",
-  users() {
-    return this.hasOne("Users");
-  },
-});
-
 // Object holding all operations to be performed on the Users table. All data returned from the
 // model will be in JSON format, such that the model cannot be changed by downstream operations.
 const UserModel = {

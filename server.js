@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 const { Server } = require("socket.io");
 const io = new Server(server, {
-  cors: { origin: process.env.SITE_URL || "http://localhost:3000", credentials: true },
+  cors: { origin: true, credentials: true },
 });
 
 // Express middlewares to enable sustained sessions, access to request bodies,
