@@ -23,7 +23,7 @@ const Visits = bookshelf.model("Visits", {
 const Games = bookshelf.model("Games", {
   tableName: "games",
   users() {
-    return this.hasMany("Users");
+    return this.hasOne("Users");
   },
 });
 

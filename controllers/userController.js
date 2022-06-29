@@ -33,7 +33,7 @@ const addUser = async (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ error: true, message: "User exists with email" + req.body.email });
+        .json({ error: true, message: "User exists with email " + req.body.email });
     }
 
     const newUser = {};
