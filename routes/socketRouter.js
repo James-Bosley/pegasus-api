@@ -6,8 +6,8 @@ const router = (io, socket) => {
 
   socket.emit("updated-session", Session.getState());
 
-  socket.on("join-session", playerId => {
-    Session.addPlayer(playerId);
+  socket.on("join-session", async playerId => {
+    await Session.addPlayer(playerId);
     io.emit("updated-session", Session.getState());
   });
 
@@ -25,6 +25,8 @@ const router = (io, socket) => {
     Session.removePlayer(playerId);
     io.emit("updated-session", Session.getState());
   });
+
+  socket.on("disconnect", () => {});
 };
 
 module.exports = router;

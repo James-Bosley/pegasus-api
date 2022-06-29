@@ -1,5 +1,6 @@
 const bookshelf = require("../db/configs");
 const uuid = require("crypto").randomUUID;
+const Users = require("../models/userModel");
 
 // Establishes a Games model connected to the underlying table and sets relations to other tables.
 const Games = bookshelf.model("Games", {
@@ -70,8 +71,9 @@ class Session {
     this.games = [];
   }
 
-  addPlayer(playerId) {
-    this.queue.push(playerId);
+  async addPlayer(playerId) {
+    const user = await Users.getDisplayAttrs(playerId);
+    this.queue.push({ id: playerId, ...user });
   }
 
   removePlayer(playerId) {
@@ -79,23 +81,26 @@ class Session {
   }
 
   createGame(players, selectingPlr) {
-    const [id, game] = new Game(players, selectingPlr, this);
+    const gamePlayers = this.queue.filter(plr => players.includes(plr.id));
+
+    const [id, game] = new Game(gamePlayers, selectingPlr, this);
+
     players.forEach(plrId => {
-      this.queue = this.queue.filter(queuedPlrId => queuedPlrId !== plrId);
+      this.queue = this.queue.filter(queuedPlr => queuedPlr.id !== plrId);
     });
-    this.games.push({ id: id, interface: game });
+    this.games.push({ id: id, actions: game });
   }
 
   async updateGame(gameId, update) {
     const updatingGame = this.games.find(game => game.id === gameId);
 
     if (update.type === "start") {
-      updatingGame.interface.start();
+      updatingGame.actions.start();
       return;
     }
 
     if (update.type === "record-result") {
-      await updatingGame.interface.recordResult(update.payload);
+      await updatingGame.actions.recordResult(update.payload);
     }
   }
 
@@ -106,7 +111,7 @@ class Session {
   getState() {
     return {
       queue: this.queue,
-      games: this.games.map(game => game.interface.getState()),
+      games: this.games.map(game => game.actions.getState()),
     };
   }
 }

@@ -102,6 +102,7 @@ const getProfile = (req, res) => {
     // Acts as template for the returned fields. The whole user should not be returned to avoid
     // revealing protected fields such as the hashed password.
     const fieldsToReturn = [
+      "id",
       "first_name",
       "last_name",
       "display_name",

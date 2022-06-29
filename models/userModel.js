@@ -40,6 +40,17 @@ const UserModel = {
     }
   },
 
+  async getDisplayAttrs(id) {
+    const name = await new Users()
+      .where({ id: id })
+      .fetch({ require: false, columns: ["display_name", "gender", "handedness"] });
+    if (!name) {
+      return null;
+    } else {
+      return name.toJSON();
+    }
+  },
+
   async add(newUser) {
     const user = await new Users(newUser).save({}, { method: "insert" });
     return user.toJSON();
