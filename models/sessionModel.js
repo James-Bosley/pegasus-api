@@ -60,6 +60,7 @@ class Game {
     return {
       id: this.id,
       players: this.players,
+      selected_by: this.user_id_selected_by,
     };
   }
 }
