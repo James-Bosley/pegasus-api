@@ -75,7 +75,7 @@ const logInOAuth = (req, res) => {
 
     // Redirection is aimed at main application feature - the games page. The token is appended as a
     // query string for storage and use on the client side.
-    return res.redirect(`${SITE_URL}/games?token=${token}`);
+    return res.redirect(`${SITE_URL}/games/pick?token=${token}`);
     //
   } catch (err) {
     console.error(err.message);
@@ -125,7 +125,7 @@ const getProfile = (req, res) => {
 const editUser = async (req, res) => {
   try {
     if (!req.user) {
-      return res.status(400).json({ error: false, message: "Please sign in" });
+      return res.status(400).json({ error: true, message: "Please sign in" });
     }
 
     // If incorrect fields have been supplied an error will be thrown.
@@ -139,6 +139,39 @@ const editUser = async (req, res) => {
   }
 };
 
+const editPassword = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(400).json({ error: true, message: "Please sign in" });
+    }
+
+    if (req.user.auth_method !== "local") {
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message:
+            "You do not use a password to sign in. Please contact your authentication provider.",
+        });
+    }
+
+    const passwordCheck = bcrypt.compareSync(req.body.password, req.user.password);
+
+    if (!passwordCheck) {
+      return res.status(400).json({ error: true, message: "Incorrect Password" });
+    }
+
+    const newPassword = bcrypt.hashSync(req.body.newPassword, SALT_ROUNDS);
+    await Users.update(req.user.id, { password: newPassword });
+
+    return res.status(200).json({ error: false, message: "", data: { success: true } });
+    //
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ error: true, message: "Server failed to update password" });
+  }
+};
+
 module.exports = {
   addUser,
   logInLocal,
@@ -146,4 +179,5 @@ module.exports = {
   logOutUser,
   getProfile,
   editUser,
+  editPassword,
 };

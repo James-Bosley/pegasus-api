@@ -25,5 +25,6 @@ router.get("/logout", userCtrl.logOutUser);
 // Protected routes to get or update a logged in users profile.
 router.get("/profile", userCtrl.getProfile);
 router.put("/profile", userCtrl.editUser);
+router.put("/password", userCtrl.editPassword);
 
 module.exports = router;

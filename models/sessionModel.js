@@ -13,7 +13,7 @@ const Games = bookshelf.model("Games", {
 class Game {
   constructor(players, selectingPlr, session) {
     this.id = uuid();
-    this.user_id_selected_by = selectingPlr;
+    this.selected_by = selectingPlr;
     this.time_created = Date.now();
     this.session = session;
     this.players = players;
@@ -21,7 +21,9 @@ class Game {
   }
 
   start() {
-    this.time_started = Date.now();
+    if (!this.time_started) {
+      this.time_started = Date.now();
+    }
   }
 
   end() {
@@ -33,7 +35,7 @@ class Game {
 
     const gameEntry = {
       time_created: this.time_created,
-      user_id_selected_by: this.user_id_selected_by,
+      user_id_selected_by: this.selected_by.id,
       time_started: this.time_started,
       time_completed: this.time_completed,
       win_score,
@@ -44,15 +46,13 @@ class Game {
 
     try {
       await new Games(gameEntry).save({}, { method: "insert" });
-      this.resultEntered = true;
+
+      await winningPlayers.forEach(async plr => await this.session.addPlayer(plr));
+      await losingPlayers.forEach(async plr => await this.session.addPlayer(plr));
+      return;
+      //
     } catch (err) {
       console.error(err.message);
-    }
-
-    if (this.resultEntered) {
-      winningPlayers.forEach(plr => this.session.addPlayer(plr));
-      losingPlayers.forEach(plr => this.session.addPlayer(plr));
-      this.session.removeGame(this.id);
     }
   }
 
@@ -60,16 +60,18 @@ class Game {
     return {
       id: this.id,
       players: this.players,
-      selected_by: this.user_id_selected_by,
+      selected_by: this.selected_by,
     };
   }
 }
 
 class Session {
-  constructor() {
+  constructor(numberOfCourts) {
     this.id = uuid();
+    this.courts = numberOfCourts || 3;
     this.queue = [];
-    this.games = [];
+    this.gamesOn = [];
+    this.gamesWait = [];
   }
 
   async addPlayer(playerId) {
@@ -81,38 +83,52 @@ class Session {
     this.queue = this.queue.filter(plr => plr.id !== playerId);
   }
 
-  createGame(players, selectingPlr) {
+  async createGame(players, selectingPlr) {
+    const selector = await Users.getDisplayAttrs(selectingPlr);
     const gamePlayers = this.queue.filter(plr => players.includes(plr.id));
 
-    const [id, game] = new Game(gamePlayers, selectingPlr, this);
+    const [id, game] = new Game(gamePlayers, selector, this);
 
     players.forEach(plrId => {
       this.queue = this.queue.filter(queuedPlr => queuedPlr.id !== plrId);
     });
-    this.games.push({ id: id, actions: game });
+    this.gamesWait.push({ id: id, actions: game });
+    this.gameStatusCheck();
+  }
+
+  gameStatusCheck() {
+    if (this.gamesOn.length < this.courts) {
+      const nextGame = this.gamesWait.shift();
+
+      if (nextGame) {
+        nextGame.actions.start();
+        this.gamesOn.push(nextGame);
+      }
+    }
   }
 
   async updateGame(gameId, update) {
-    const updatingGame = this.games.find(game => game.id === gameId);
-
-    if (update.type === "start") {
-      updatingGame.actions.start();
-      return;
-    }
+    const updatingGame = this.gamesOn.find(game => game.id === gameId);
 
     if (update.type === "record-result") {
       await updatingGame.actions.recordResult(update.payload);
+      this.removeGame(updatingGame.id);
+      this.gameStatusCheck();
+      return;
     }
   }
 
   removeGame(gameId) {
-    this.games = this.games.filter(game => game.id !== gameId);
+    this.games = this.gamesOn.filter(game => game.id !== gameId);
   }
 
   getState() {
     return {
       queue: this.queue,
-      games: this.games.map(game => game.actions.getState()),
+      games: {
+        on: this.gamesOn.map(game => game.actions.getState()),
+        wait: this.gamesWait.map(game => game.actions.getState()),
+      },
     };
   }
 }

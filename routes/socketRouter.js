@@ -13,12 +13,16 @@ const router = (io, socket) => {
 
   socket.on("game-create", ({ players, selectingPlr }) => {
     Session.createGame(players, selectingPlr);
-    io.emit("updated-session", Session.getState());
+    setTimeout(() => {
+      io.emit("updated-session", Session.getState());
+    }, 500);
   });
 
   socket.on("game-update", async ({ gameId, update }) => {
     await Session.updateGame(gameId, update);
-    io.emit("updated-session", Session.getState());
+    setTimeout(() => {
+      io.emit("updated-session", Session.getState());
+    }, 500);
   });
 
   socket.on("leave-session", playerId => {
