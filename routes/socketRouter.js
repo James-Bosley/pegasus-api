@@ -1,4 +1,5 @@
-const Session = require("../models/sessionModel")();
+const Notifier = require("../controllers/notificationController")();
+const Session = require("../models/sessionModel")(Notifier);
 
 const router = (io, socket) => {
   // Logic for directing incoming connections to specific session instances will be
@@ -8,7 +9,12 @@ const router = (io, socket) => {
 
   socket.on("join-session", async playerId => {
     await Session.addPlayer(playerId);
+    socket.emit("notifications-key", Notifier.key);
     io.emit("updated-session", Session.getState());
+  });
+
+  socket.on("notifications-start", userKeys => {
+    Notifier.subscribe(userKeys);
   });
 
   socket.on("game-create", ({ players, selectingPlr }) => {
@@ -27,6 +33,7 @@ const router = (io, socket) => {
 
   socket.on("leave-session", playerId => {
     Session.removePlayer(playerId);
+    Notifier.unsubscribe(playerId);
     io.emit("updated-session", Session.getState());
   });
 

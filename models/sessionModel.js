@@ -66,9 +66,10 @@ class Game {
 }
 
 class Session {
-  constructor(numberOfCourts) {
+  constructor(notifier) {
     this.id = uuid();
-    this.courts = numberOfCourts || 3;
+    this.notifier = notifier;
+    this.courts = 3;
     this.queue = [];
     this.gamesOn = [];
     this.gamesWait = [];
@@ -93,6 +94,15 @@ class Session {
       this.queue = this.queue.filter(queuedPlr => queuedPlr.id !== plrId);
     });
     this.gamesWait.push({ id: id, actions: game });
+
+    const choosingPlayer = this.queue[0]?.id;
+    if (choosingPlayer) {
+      this.notifier.send(
+        { title: "Your Pick", body: "You are at the head of the queue, plrase choose a game" },
+        [choosingPlayer]
+      );
+    }
+
     this.gameStatusCheck();
   }
 
@@ -102,6 +112,11 @@ class Session {
 
       if (nextGame) {
         nextGame.actions.start();
+        const { players } = nextGame.actions.getState();
+        this.notifier.send(
+          { title: "Game On!", body: "A game you have been selected for is starting." },
+          players.map(plr => plr.id)
+        );
         this.gamesOn.push(nextGame);
       }
     }
@@ -133,4 +148,4 @@ class Session {
   }
 }
 
-module.exports = () => new Session();
+module.exports = notifier => new Session(notifier);
