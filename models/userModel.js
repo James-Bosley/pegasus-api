@@ -43,7 +43,7 @@ const UserModel = {
   async getDisplayAttrs(id) {
     const name = await new Users()
       .where({ id: id })
-      .fetch({ require: false, columns: ["display_name", "gender", "handedness"] });
+      .fetch({ require: false, columns: ["id", "display_name", "gender", "handedness"] });
     if (!name) {
       return null;
     } else {

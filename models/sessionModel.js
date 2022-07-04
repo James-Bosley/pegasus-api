@@ -41,8 +41,14 @@ class Game {
       win_score,
       lose_score,
     };
-    winningPlayers.forEach((plr, i) => (gameEntry["user_id_win_" + (i + 1)] = plr));
-    losingPlayers.forEach((plr, i) => (gameEntry["user_id_lose_" + (i + 1)] = plr));
+    winningPlayers.forEach((plr, i) => {
+      gameEntry["user_id_win_" + (i + 1)] = plr;
+      this.session.incrementPlayerWins(plr);
+    });
+    losingPlayers.forEach((plr, i) => {
+      gameEntry["user_id_lose_" + (i + 1)] = plr;
+      this.session.incrementPlayerLosses(plr);
+    });
 
     try {
       await new Games(gameEntry).save({}, { method: "insert" });
@@ -70,6 +76,8 @@ class Session {
     this.id = uuid();
     this.notifier = notifier;
     this.courts = 3;
+    this.playerWins = {};
+    this.playerLosses = {};
     this.queue = [];
     this.gamesOn = [];
     this.gamesWait = [];
@@ -97,8 +105,13 @@ class Session {
 
     const choosingPlayer = this.queue[0]?.id;
     if (choosingPlayer) {
-      this.notifier.send(
-        { title: "Your Pick", body: "You are at the head of the queue, plrase choose a game" },
+      this.notifier.sendNotification(
+        {
+          title: "Your Pick",
+          body: "You are at the head of the queue, please choose a game.",
+          url: "http://localhost:3000/games/pick",
+          buttonText: "Pick Now",
+        },
         [choosingPlayer]
       );
     }
@@ -113,8 +126,13 @@ class Session {
       if (nextGame) {
         nextGame.actions.start();
         const { players } = nextGame.actions.getState();
-        this.notifier.send(
-          { title: "Game On!", body: "A game you have been selected for is starting." },
+        this.notifier.sendNotification(
+          {
+            title: "Game On!",
+            body: "A game you have been selected for is starting.",
+            url: "http://localhost:3000/games/queue",
+            buttonText: "View Game",
+          },
           players.map(plr => plr.id)
         );
         this.gamesOn.push(nextGame);
@@ -133,13 +151,33 @@ class Session {
     }
   }
 
+  incrementPlayerWins(playerId) {
+    if (this.playerWins[playerId]) {
+      this.playerWins[playerId]++;
+    } else {
+      this.playerWins[playerId] = 1;
+    }
+  }
+
+  incrementPlayerLosses(playerId) {
+    if (this.playerLosses[playerId]) {
+      this.playerLosses[playerId]++;
+    } else {
+      this.playerLosses[playerId] = 1;
+    }
+  }
+
   removeGame(gameId) {
     this.games = this.gamesOn.filter(game => game.id !== gameId);
   }
 
   getState() {
     return {
-      queue: this.queue,
+      queue: this.queue.map(plr => ({
+        ...plr,
+        wins: this.playerWins[plr.id] || 0,
+        losses: this.playerLosses[plr.id] || 0,
+      })),
       games: {
         on: this.gamesOn.map(game => game.actions.getState()),
         wait: this.gamesWait.map(game => game.actions.getState()),

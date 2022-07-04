@@ -9,12 +9,12 @@ const router = (io, socket) => {
 
   socket.on("join-session", async playerId => {
     await Session.addPlayer(playerId);
-    socket.emit("notifications-key", Notifier.key);
+    socket.emit("notifications-key", Notifier.keys.publicKey);
     io.emit("updated-session", Session.getState());
   });
 
   socket.on("notifications-start", userKeys => {
-    Notifier.subscribe(userKeys);
+    Notifier.subscribeUser(userKeys);
   });
 
   socket.on("game-create", ({ players, selectingPlr }) => {
@@ -33,7 +33,7 @@ const router = (io, socket) => {
 
   socket.on("leave-session", playerId => {
     Session.removePlayer(playerId);
-    Notifier.unsubscribe(playerId);
+    Notifier.unsubscribeUser(playerId);
     io.emit("updated-session", Session.getState());
   });
 

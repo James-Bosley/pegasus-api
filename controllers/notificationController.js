@@ -1,8 +1,8 @@
 const push = require("web-push");
 
 class Notifier {
-  constructor(subscribed) {
-    this.subscribed = subscribed || [];
+  constructor() {
+    this.subscribed = [];
     this.push = push;
     this.keys = push.generateVAPIDKeys();
     this.push.setVapidDetails(
@@ -10,18 +10,10 @@ class Notifier {
       this.keys.publicKey,
       this.keys.privateKey
     );
-    return {
-      key: this.keys.publicKey,
-      subscribe: this.subscribeUser,
-      unsubscribe: this.unsubscribeUser,
-      send: this.sendNotification,
-    };
   }
 
   subscribeUser(user) {
-    console.log("sub", user);
     this.subscribed.push(user);
-    console.log(this.subscribed);
   }
 
   unsubscribeUser(userId) {
@@ -29,9 +21,6 @@ class Notifier {
   }
 
   sendNotification(message, recipientIds) {
-    console.log("Message", message);
-    console.log("ids", recipientIds);
-    console.log("subs", this.subscribed);
     const recipients = this.subscribed.filter(user => recipientIds.includes(user.id));
 
     recipients.forEach(user => {
@@ -40,4 +29,4 @@ class Notifier {
   }
 }
 
-module.exports = subscribed => new Notifier(subscribed);
+module.exports = () => new Notifier();
