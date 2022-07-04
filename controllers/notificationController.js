@@ -23,9 +23,13 @@ class Notifier {
   sendNotification(message, recipientIds) {
     const recipients = this.subscribed.filter(user => recipientIds.includes(user.id));
 
-    recipients.forEach(user => {
-      this.push.sendNotification(user, JSON.stringify(message));
-    });
+    try {
+      recipients.forEach(user => {
+        this.push.sendNotification(user, JSON.stringify(message));
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
   }
 }
 

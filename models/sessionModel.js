@@ -1,14 +1,6 @@
-const bookshelf = require("../db/configs");
 const uuid = require("crypto").randomUUID;
 const Users = require("../models/userModel");
-
-// Establishes a Games model connected to the underlying table and sets relations to other tables.
-const Games = bookshelf.model("Games", {
-  tableName: "games",
-  users() {
-    return this.hasOne("Users");
-  },
-});
+const Games = require("../repositories/gamesRepository");
 
 class Game {
   constructor(players, selectingPlr, session) {
@@ -51,7 +43,7 @@ class Game {
     });
 
     try {
-      await new Games(gameEntry).save({}, { method: "insert" });
+      await Games.addOne(gameEntry);
 
       await winningPlayers.forEach(async plr => await this.session.addPlayer(plr));
       await losingPlayers.forEach(async plr => await this.session.addPlayer(plr));
@@ -168,7 +160,7 @@ class Session {
   }
 
   removeGame(gameId) {
-    this.games = this.gamesOn.filter(game => game.id !== gameId);
+    this.gamesOn = this.gamesOn.filter(game => game.id !== gameId);
   }
 
   getState() {

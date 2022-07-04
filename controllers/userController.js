@@ -1,6 +1,7 @@
 const Users = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const userReport = require("./reportController");
 
 // Variables likely to change during production.
 const SALT_ROUNDS = process.env.SALT_RNDS || 8;
@@ -146,13 +147,11 @@ const editPassword = async (req, res) => {
     }
 
     if (req.user.auth_method !== "local") {
-      return res
-        .status(400)
-        .json({
-          error: true,
-          message:
-            "You do not use a password to sign in. Please contact your authentication provider.",
-        });
+      return res.status(400).json({
+        error: true,
+        message:
+          "You do not use a password to sign in. Please contact your authentication provider.",
+      });
     }
 
     const passwordCheck = bcrypt.compareSync(req.body.password, req.user.password);
@@ -172,6 +171,27 @@ const editPassword = async (req, res) => {
   }
 };
 
+const getReport = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(400).json({ error: true, message: "Please sign in" });
+    }
+
+    if (!req.query?.loc) {
+      const report = await userReport(req.user.id);
+      return res.status(200).json({ error: false, message: "", data: { url: report } });
+    }
+
+    const generatedReport = req.query.loc;
+
+    return res.status(200).download(generatedReport);
+    //
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ error: true, message: "Server failed create report" });
+  }
+};
+
 module.exports = {
   addUser,
   logInLocal,
@@ -180,4 +200,5 @@ module.exports = {
   getProfile,
   editUser,
   editPassword,
+  getReport,
 };
