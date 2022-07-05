@@ -2,6 +2,8 @@ const uuid = require("crypto").randomUUID;
 const Users = require("../models/userModel");
 const Games = require("../repositories/gamesRepository");
 
+const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
+
 class Game {
   constructor(players, selectingPlr, session) {
     this.id = uuid();
@@ -101,7 +103,7 @@ class Session {
         {
           title: "Your Pick",
           body: "You are at the head of the queue, please choose a game.",
-          url: "http://localhost:3000/games/pick",
+          url: SITE_URL + "/games/pick",
           buttonText: "Pick Now",
         },
         [choosingPlayer]
@@ -122,7 +124,7 @@ class Session {
           {
             title: "Game On!",
             body: "A game you have been selected for is starting.",
-            url: "http://localhost:3000/games/queue",
+            url: SITE_URL + "/games/queue",
             buttonText: "View Game",
           },
           players.map(plr => plr.id)
