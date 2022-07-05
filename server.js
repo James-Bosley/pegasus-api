@@ -14,10 +14,13 @@ const io = new Server(server, {
   cors: { origin: true, credentials: true },
 });
 
+// Allows the nginx from heroku buildpack to access server.
+app.set("trust proxy", 1);
+
 // Sets up a Redis session store.
 let RedisStore = require("connect-redis")(session);
 const { createClient } = require("redis");
-let redisClient = createClient({ legacyMode: true });
+let redisClient = createClient({ legacyMode: true, host: "localhost", port: 6379 });
 redisClient.connect().catch(console.error);
 
 // Express middlewares to enable sustained sessions, access to request bodies,
