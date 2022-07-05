@@ -16,12 +16,14 @@ const io = new Server(server, {
 
 // Express middlewares to enable sustained sessions, access to request bodies,
 // and logging that is dependant on operating environment.
+app.set("trust proxy", 1);
 app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
+    proxy: true,
     credentials: true,
     saveUninitialized: false,
     cookie: {
