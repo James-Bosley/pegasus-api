@@ -37,6 +37,10 @@ app.use(passport.session());
 const expressRouter = require("./routes/expressRouter");
 app.use("/v1", expressRouter);
 
+// Socket authentication using JWT.
+const authStrategy = require("./auth/socketAuth");
+io.use(authStrategy);
+
 // All socket connections are managed by a router that is passed the socket.io
 // instance and the connected socket as arguments.
 const socketRouter = require("./routes/socketRouter.js");
