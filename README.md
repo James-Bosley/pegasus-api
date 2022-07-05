@@ -1,1 +1,1 @@
-# Pegasus
+# GoChamp

@@ -1,31 +1,31 @@
 const router = require("express").Router();
 const passport = require("../auth");
-const {
-  addUser,
-  logInUser,
-  logOutUser,
-  getProfile,
-  editUser,
-} = require("../controllers/userController");
+const userCtrl = require("../controllers/userController");
 
 // Auth routes are configured here.
-router.post("/signup/local", addUser);
-router.post("/login/local", passport.authenticate("local", { failureMessage: true }), logInUser);
+router.post("/signup/local", userCtrl.addUser);
+router.post(
+  "/login/local",
+  passport.authenticate("local", { failureMessage: true }),
+  userCtrl.logInLocal
+);
 
 router.get("/signup/google", passport.authenticate("google"));
 router.get("/login/google", passport.authenticate("google"));
 router.get(
   "/login/google/redirect",
   passport.authenticate("google", { failureMessage: true }),
-  logInUser
+  userCtrl.logInOAuth
 );
 //
 
 // Route ends a current session and removes the req.user object.
-router.post("/logout", logOutUser);
+router.get("/logout", userCtrl.logOutUser);
 
 // Protected routes to get or update a logged in users profile.
-router.get("/profile", getProfile);
-router.put("/profile", editUser);
+router.get("/profile", userCtrl.getProfile);
+router.get("/report", userCtrl.getReport);
+router.put("/profile", userCtrl.editUser);
+router.put("/password", userCtrl.editPassword);
 
 module.exports = router;

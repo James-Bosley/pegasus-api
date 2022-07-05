@@ -1,10 +1,13 @@
 {
-  "name": "pegasus-server",
+  "name": "server",
   "version": "1.0.0",
-  "description": "Server for Pegasus application.",
+  "description": "Server for GoChamp application.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db-init": "cd db && knex migrate:latest && knex seed:run",
+    "db-reset": "cd db && knex migrate:down && knex migrate:latest && knex seed:run",
+    "dev": "nodemon server.js"
   },
   "author": "James Bosley",
   "license": "ISC",
@@ -22,7 +25,9 @@
     "passport": "^0.6.0",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0",
-    "socket.io": "^4.5.1"
+    "pdfkit": "^0.13.0",
+    "socket.io": "^4.5.1",
+    "web-push": "^3.5.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"

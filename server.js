@@ -10,10 +10,13 @@ const app = express();
 const server = http.createServer(app);
 
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+  cors: { origin: true, credentials: true },
+});
 
 // Express middlewares to enable sustained sessions, access to request bodies,
 // and logging that is dependant on operating environment.
+app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
 app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
@@ -24,7 +27,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
 
 // Connects passport authenitication middleware.
 const passport = require("./auth");
@@ -34,6 +36,10 @@ app.use(passport.session());
 // All express routes are handled through a router at /v1.
 const expressRouter = require("./routes/expressRouter");
 app.use("/v1", expressRouter);
+
+// Socket authentication using JWT.
+const authStrategy = require("./auth/socketAuth");
+io.use(authStrategy);
 
 // All socket connections are managed by a router that is passed the socket.io
 // instance and the connected socket as arguments.
