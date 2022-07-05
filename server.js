@@ -20,7 +20,8 @@ app.set("trust proxy", 1);
 // Sets up a Redis session store.
 let RedisStore = require("connect-redis")(session);
 const { createClient } = require("redis");
-let redisClient = createClient(process.env.REDISCLOUD_URL, { legacyMode: true });
+const location = new URL(process.env.REDISCLOUD_URL);
+let redisClient = createClient(location, { legacyMode: true });
 redisClient.connect().catch(console.error);
 
 // Express middlewares to enable sustained sessions, access to request bodies,
@@ -54,6 +55,7 @@ io.use(authStrategy);
 // All socket connections are managed by a router that is passed the socket.io
 // instance and the connected socket as arguments.
 const socketRouter = require("./routes/socketRouter.js");
+const { url } = require("inspector");
 const socketConnect = socket => socketRouter(io, socket);
 io.on("connection", socketConnect);
 
