@@ -84,7 +84,7 @@ const userReport = async userId => {
       {
         title: "Player Profile",
         items: [
-          { name: "Pegasus player ID", value: user.id },
+          { name: "GoChamp player ID", value: user.id },
           { name: "Display name", value: user.display_name },
         ],
       },

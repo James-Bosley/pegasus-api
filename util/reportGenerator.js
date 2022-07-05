@@ -41,7 +41,7 @@ const reportGenerator = data => {
       const p = 12;
 
       // Headers.
-      doc.writeLine("Pegasus", headerFont, h1, { align: "center" });
+      doc.writeLine("GoChamp", headerFont, h1, { align: "center" });
       doc.writeLine(data.reportName, headerFont, h2, { align: "center" }, 0.4);
 
       // Content.

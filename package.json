@@ -1,7 +1,7 @@
 {
-  "name": "pegasus-server",
+  "name": "server",
   "version": "1.0.0",
-  "description": "Server for Pegasus application.",
+  "description": "Server for GoChamp application.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
