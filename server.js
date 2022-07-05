@@ -14,6 +14,12 @@ const io = new Server(server, {
   cors: { origin: true, credentials: true },
 });
 
+// Sets up a Redis session store.
+let RedisStore = require("connect-redis")(session);
+const { createClient } = require("redis");
+let redisClient = createClient({ legacyMode: true });
+redisClient.connect().catch(console.error);
+
 // Express middlewares to enable sustained sessions, access to request bodies,
 // and logging that is dependant on operating environment.
 app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
@@ -24,6 +30,7 @@ app.use(
     resave: false,
     credentials: true,
     saveUninitialized: false,
+    store: new RedisStore({ client: redisClient }),
   })
 );
 app.use(express.json());
