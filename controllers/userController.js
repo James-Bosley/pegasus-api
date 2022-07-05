@@ -177,14 +177,9 @@ const getReport = async (req, res) => {
       return res.status(400).json({ error: true, message: "Please sign in" });
     }
 
-    if (!req.query?.loc) {
-      const report = await userReport(req.user.id);
-      return res.status(200).json({ error: false, message: "", data: { url: report } });
-    }
+    const report = await userReport(req.user.id);
 
-    const generatedReport = req.query.loc;
-
-    return res.status(200).download(generatedReport);
+    return res.status(200).download(report);
     //
   } catch (err) {
     console.error(err.message);

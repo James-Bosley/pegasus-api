@@ -26,7 +26,7 @@ const reportGenerator = data => {
 
       const filePath = path.resolve(
         __dirname,
-        "/temp-reports",
+        "../temp-reports",
         `${data.reportName} - ${data.reportId}.pdf`
       );
 
