@@ -44,6 +44,9 @@ const addUser = async (req, res) => {
     newUser.joined = Date.now();
     newUser.last_visit = Date.now();
 
+    if (req.body.gender) newUser.gender = req.body.gender;
+    if (req.body.handedness) newUser.handedness = req.body.handedness;
+
     // Creates hashed password, safe to store in DB.
     newUser.password = bcrypt.hashSync(req.body.password, SALT_ROUNDS);
 
