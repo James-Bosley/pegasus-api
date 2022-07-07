@@ -11,16 +11,14 @@ const server = http.createServer(app);
 
 const { Server } = require("socket.io");
 const io = new Server(server, {
-  cors: { origin: ["https://www.gochamp.co.uk", "http://localhost:3000"], credentials: true },
+  cors: { origin: true, credentials: true },
 });
 
 // Express middlewares to enable sustained sessions, access to request bodies,
 // and logging that is dependant on operating environment.
 app.set("trust proxy", 1);
 app.use(logger(process.env.NODE_ENV === "production" ? "common" : "dev"));
-app.use(
-  cors({ origin: ["https://www.gochamp.co.uk", "http://localhost:3000"], credentials: true })
-);
+app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
