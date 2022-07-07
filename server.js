@@ -50,7 +50,6 @@ io.use(authStrategy);
 // All socket connections are managed by a router that is passed the socket.io
 // instance and the connected socket as arguments.
 const socketRouter = require("./routes/socketRouter.js");
-const { url } = require("inspector");
 const socketConnect = socket => socketRouter(io, socket);
 io.on("connection", socketConnect);
 
