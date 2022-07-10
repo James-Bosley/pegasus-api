@@ -1,5 +1,5 @@
 const passport = require("passport");
-const Users = require("../models/userModel");
+const Users = require("../repositories/userRepository");
 
 // The different strategies available to users are added to the passport
 // instance here. They are invoked by using the relevent string in passport.authenticate().

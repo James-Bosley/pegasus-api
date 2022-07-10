@@ -1,5 +1,7 @@
 const Games = require("../models/gameModel");
 
+// Object holding all operations to be performed on the Games table. All data returned from the
+// model will be in JSON format, such that the model cannot be changed by downstream operations.
 const GamesMethods = {
   async addOne(game) {
     const newGame = await new Games(game).save({}, { method: "insert" });

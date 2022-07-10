@@ -1,14 +1,18 @@
 const uuid = require("crypto").randomUUID;
-const Users = require("../models/userModel");
+const Users = require("../repositories/userRepository");
 const Games = require("../repositories/gamesRepository");
 
 const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
+
+// Future development will require this model to be attached to a database,
+// to enable the app to scale. This implementation stores session state in memory.
 
 class Game {
   constructor(players, selectingPlr, session) {
     this.id = uuid();
     this.selected_by = selectingPlr;
     this.time_created = Date.now();
+    // Stores a reference to the session that created it.
     this.session = session;
     this.players = players;
     return [this.id, this];
@@ -44,6 +48,7 @@ class Game {
       this.session.incrementPlayerLosses(plr);
     });
 
+    // Save to database and return the players to the session queue.
     try {
       await Games.addOne(gameEntry);
 
@@ -68,6 +73,7 @@ class Game {
 class Session {
   constructor(notifier) {
     this.id = uuid();
+    // Attaches an instance of the notification class.
     this.notifier = notifier;
     this.courts = 3;
     this.playerWins = {};
@@ -113,6 +119,8 @@ class Session {
     this.gameStatusCheck();
   }
 
+  // On game creation or completion, check if a game needs to be added to 'in play',
+  // and notifies players involved.
   gameStatusCheck() {
     if (this.gamesOn.length < this.courts) {
       const nextGame = this.gamesWait.shift();
@@ -165,6 +173,7 @@ class Session {
     this.gamesOn = this.gamesOn.filter(game => game.id !== gameId);
   }
 
+  // Creates a snapshot of the session state to be consumed by the client.
   getState() {
     return {
       queue: this.queue.map(plr => ({

@@ -1,5 +1,5 @@
 const reportGenerator = require("../util/reportGenerator");
-const Users = require("../models/userModel");
+const Users = require("../repositories/userRepository");
 const Games = require("../repositories/gamesRepository");
 
 const gameTime = time => {
@@ -10,6 +10,7 @@ const gameTime = time => {
   return date.toLocaleDateString() + " at " + hours + ":" + minutes;
 };
 
+// Creates a plain English description from a Game record.
 const gameDesciptionString = async (game, userId) => {
   let string = "";
   const isWinner = game.user_id_win_1 === userId || game.user_id_win_2 === userId;
@@ -77,6 +78,7 @@ const userReport = async userId => {
 
   const wins = games.filter(game => game.user_id_win_1 === userId || game.user_id_win_2 === userId);
 
+  // Constructs the report.
   const report = await reportGenerator({
     reportName: `Individual Player Report - ${user.first_name} ${user.last_name}`,
     reportId: user.id,

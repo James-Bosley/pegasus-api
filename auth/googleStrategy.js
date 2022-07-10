@@ -1,5 +1,5 @@
 const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
-const Users = require("../models/userModel");
+const Users = require("../repositories/userRepository");
 
 // Variable likely to change during production.
 const BASE_URL = process.env.API_URL || "http://localhost:8080";

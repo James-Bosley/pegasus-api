@@ -1,3 +1,4 @@
+// Creates a new session with an attached notifier.
 const Notifier = require("../controllers/notificationController")();
 const Session = require("../models/sessionModel")(Notifier);
 
@@ -5,6 +6,7 @@ const router = (io, socket) => {
   // Logic for directing incoming connections to specific session instances will be
   // placed here.
 
+  // Most incoming actions will be responded to with an updated version of the session state.
   socket.emit("updated-session", Session.getState());
 
   socket.on("join-session", async playerId => {
@@ -36,8 +38,6 @@ const router = (io, socket) => {
     Notifier.unsubscribeUser(playerId);
     io.emit("updated-session", Session.getState());
   });
-
-  socket.on("disconnect", () => {});
 };
 
 module.exports = router;
