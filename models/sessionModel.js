@@ -182,8 +182,26 @@ class Session {
         losses: this.playerLosses[plr.id] || 0,
       })),
       games: {
-        on: this.gamesOn.map(game => game.actions.getState()),
-        wait: this.gamesWait.map(game => game.actions.getState()),
+        on: this.gamesOn
+          .map(game => game.actions.getState())
+          .map(game => ({
+            ...game,
+            players: game.players.map(plr => ({
+              ...plr,
+              wins: this.playerWins[plr.id] || 0,
+              losses: this.playerLosses[plr.id] || 0,
+            })),
+          })),
+        wait: this.gamesWait
+          .map(game => game.actions.getState())
+          .map(game => ({
+            ...game,
+            players: game.players.map(plr => ({
+              ...plr,
+              wins: this.playerWins[plr.id] || 0,
+              losses: this.playerLosses[plr.id] || 0,
+            })),
+          })),
       },
     };
   }
